@@ -3,8 +3,10 @@ import numpy as np
 import re
 import string
 import spacy
+import gensim
 from nltk.corpus import stopwords
 from spacy.tokenizer import Tokenizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import unicodedata
 import contractions
 
@@ -14,7 +16,7 @@ amz_syn_aug = pd.read_csv('../Amazon product reviews dataset/Synonym_augmented_d
 # Import Unaugmented Data
 amz_norm = pd.read_csv('../Amazon product reviews dataset/amazon_train.csv')
 
-# Preprocessing Functions
+# A. Preprocessing Functions
 # 1. Removing accented characters
 def remove_accented_chars(text):
     text = unicodedata.normalize('NFKD', text).encode(
@@ -23,6 +25,7 @@ def remove_accented_chars(text):
 
 
 # 2. Expand contractions
+# Check norm dataset -> didnt wasn't caught
 CONTRACTION_MAP = contractions.CONTRACTION_MAP
 def expand_contractions(text, contraction_mapping=CONTRACTION_MAP):
     contractions_pattern = re.compile('({})'.format('|'.join(contraction_mapping.keys())),
@@ -48,9 +51,7 @@ def remove_special_characters(text, remove_digits=False):
     return text
 
 # 4. Lemmatisation of review text
-nlp = spacy.load('en_core_web_sm', parse=True, tag=True, entity=True)
-
-def lemmatize_text(text):
+def lemmatize_text(text, nlp):
     text = nlp(text)
     text = ' '.join([word.lemma_ if word.lemma_ !='-PRON-' else word.text for word in text])
     return text
@@ -65,7 +66,7 @@ def custom_tokenizer(nlp):
 all_stopwords = stopwords.words('english')
 all_punctuation = string.punctuation
 
-def remove_stopwords(text, is_lower_case=False):
+def remove_stopwords(text, nlp, is_lower_case=True):
     tokens = nlp(text)
     tokens = [token.text.strip() for token in tokens]
     if is_lower_case:
@@ -74,8 +75,7 @@ def remove_stopwords(text, is_lower_case=False):
     else:
         filtered_tokens = [token.lower() for token in tokens if token not in all_stopwords]
         filtered_tokens = [token for token in filtered_tokens if token not in all_punctuation]
-    filtered_text = ' '.join(filtered_tokens)
-    return filtered_text
+    return filtered_tokens
 
 # 7. Correct apostrophe whitespaces
 def remove_apos_whitespace(text):
@@ -85,20 +85,16 @@ def remove_apos_whitespace(text):
     text_result = re.sub(trailing, '', text_intermediate)
     return text_result
 
-# text = amz_syn_aug.iloc[0, 0]
-# text = remove_accented_chars(text)
-# text = remove_apos_whitespace(text)
-# text = expand_contractions(text)
-# text = text.lower()
-# text = lemmatize_text(text)
-# text = remove_stopwords(text)
 
 # 8. Complete pipeline
 def preprocess_text(data, remove_accented_char=True, contraction_expansion=True, normalize=True, correct_apos_whitespace=True, lemmatize=True, remove_special_char=True, stopword_removal=True):
 
+
     processed_corpus = []
-    labels = data['sentiment']
     corpus = data['reviews.text']
+    nlp = spacy.load('en_core_web_sm', parse=True, tag=True, entity=True)
+    tokenizer = custom_tokenizer(nlp)
+    nlp.tokenizer = tokenizer
 
     for text in corpus:
         if remove_accented_char:
@@ -112,17 +108,27 @@ def preprocess_text(data, remove_accented_char=True, contraction_expansion=True,
         if normalize:
             text = text.lower()
         if lemmatize:
-            text = lemmatize_text(text)
+            text = lemmatize_text(text, nlp)
         if stopword_removal:
-            remove_stopwords(text, is_lower_case=True)
-            text = remove_stopwords(text)
-            processed_corpus.append([text])
+            text = remove_stopwords(text,nlp)
+        
+        processed_corpus.append(text)
 
-    final_result = pd.concat([pd.DataFrame(processed_corpus, columns=['reviews.text']), labels], axis=1)    
-    return final_result
+    return processed_corpus
 
-# Get processed & augmented dataset 
-amz_syn_aug_processed = preprocess_text(amz_syn_aug)
+# AUGMENTED
+# Get processed training dataset 
+amz_syn_aug_train_processed = preprocess_text(amz_syn_aug) 
+pd.concat([pd.DataFrame({'text_processed': amz_syn_aug_train_processed}), amz_syn_aug.sentiment], axis=1).to_csv('../Amazon product reviews dataset/Synonym_augmented_data/amazon_syn_aug_train_processed.csv', index=False)
 
-# Get processed dataset
-amz_processed = preprocess_text(amz_norm)
+# UNAUGMENTED
+# Get processed training dataset
+amz_train_processed = preprocess_text(amz_norm) 
+pd.concat([pd.DataFrame({'text_processed': amz_train_processed}), amz_norm.sentiment], axis=1).to_csv('../Amazon product reviews dataset/amazon_train_processed.csv', index=False)
+
+# TEST DATA
+# Get processed test dataset
+amz_norm_test = pd.read_csv('../Amazon product reviews dataset/amazon_test.csv')
+amz_test_processed = preprocess_text(amz_norm_test)
+pd.concat([pd.DataFrame({'text_processed': amz_test_processed}), amz_norm_test.sentiment], axis=1).to_csv('../Amazon product reviews dataset/amazon_test_processed.csv', index=False)
+
