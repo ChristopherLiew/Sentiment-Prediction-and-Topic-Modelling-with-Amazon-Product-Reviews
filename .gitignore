@@ -8,3 +8,4 @@ Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.50d.txt
 Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.zip
 Text Preprocessing & Augmentation/nlpaug_model_dir/GoogleNews-vectors-negative300.bin
 *.csv
+nlpaug_model_dir/.DS_Store
