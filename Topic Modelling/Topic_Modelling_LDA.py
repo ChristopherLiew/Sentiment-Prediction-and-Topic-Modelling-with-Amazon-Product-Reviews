@@ -122,7 +122,7 @@ corpus_tfidf_neg = tfidf_pos[corpus_neg]
 # To use c_v and c_uci please provide texts for intrinsic measures (i.e. list of list of strings)
 def build_lda_model(corpus, dictionary, num_topics, alpha='auto', beta='auto', compute_coherence=True, coherence='u_mass',
                     save=True,
-                    saved_model_dir='/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Topic Models/'):
+                    saved_model_dir='/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Topic Models/LDA_models/'):
     # Try running on a corpus subset (maybe 50 ~ 75%) else long training time
     lda_model = models.ldamodel.LdaModel(corpus=corpus,
                                          id2word=dictionary,
@@ -187,7 +187,6 @@ def tune_lda_model(corpus, dictionary, hyperparameters, val_set_size=0.75, coher
                 prog_bar.update(1)
 
     prog_bar.close()
-    pd.DataFrame(results).to_csv('lda_tuning_results_%s.csv' % datetime.now(), index=False)
     return pd.DataFrame(results)
 
 ## Visualise LDA inferred topics
@@ -201,8 +200,8 @@ def viz_lda_model(model, corpus, dictionary):
 ## 1) Positive
 # Get baseline coherence score
 lda_pos, lda_pos_umass_score = build_lda_model(corpus=corpus_tfidf_pos, dictionary=id2wordPos, num_topics=10, save=False)
-
-# Get baseline topics (Sanity check)
+# Baseline: -8.513888262545803
+# Sanity check Topics
 pprint(lda_pos.print_topics())
 
 # Tune and find optimal hyper-params (Super slow 120 iterations at ~45 secs/iter)
@@ -225,6 +224,12 @@ lda_opt_pos, score = build_lda_model(corpus_tfidf_pos, id2wordPos, num_topics=3,
 pprint(lda_opt_pos.print_topics())
 
 # 2) Neutral
+# Get baseline coherence score
+lda_neu, lda_neu_umass_score = build_lda_model(corpus=corpus_tfidf_neu, dictionary=id2wordNeu, num_topics=10, save=False)
+# Baseline: -6.794979088018552
+# Sanity check Topics
+pprint(lda_neu.print_topics())
+
 neu_results = tune_lda_model(corpus=corpus_tfidf_neu, dictionary=id2wordNeu, hyperparameters=params_grid)
 neu_results.sort_values(by='results', ascending=False)
 # Optimal hyper-params: num_topics = 3, alpha = 0.01, beta = 0.01, results = -4.190391
@@ -239,6 +244,12 @@ lda_opt_neu, score_neu = build_lda_model(corpus_tfidf_neu, id2wordNeu, num_topic
 pprint(lda_opt_neu.print_topics())
 
 # 3) Negative
+# Get baseline coherence score
+lda_neg, lda_neg_umass_score = build_lda_model(corpus=corpus_tfidf_neg, dictionary=id2wordNeg, num_topics=10, save=False)
+# Baseline: -8.898197966927802
+# Sanity check Topics
+pprint(lda_neg.print_topics())
+
 neg_results = tune_lda_model(corpus=corpus_tfidf_neg, dictionary=id2wordNeg, hyperparameters=params_grid)
 neg_results.sort_values(by='results', ascending=False)
 # Optimal hyper-params: num_topics = 9, alpha = 0.91, beta = 0.91, results = -2.593273
