@@ -81,7 +81,7 @@ amz_syn_aug_data.to_csv('../Amazon product reviews dataset/Synonym_augmented_dat
 #       To Be Done        #
 ###########################
 
-# 2. BacktranslationAug (From EN -> DE -> EN, Issue with translation file DEBUG)
+# 2. BacktranslationAug (From EN -> DE -> EN, Issue with translation file DEBUG) / Or use translate API
 text = 'The quick brown fox jumped over the lazy dog'
 back_translation_aug = naw.BackTranslationAug(
     from_model_name='transformer.wmt19.en-de', to_model_name='transformer.wmt19.de-en')

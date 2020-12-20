@@ -13,9 +13,9 @@ from sklearn.model_selection import RandomizedSearchCV
 ####################################################
 
 # Load training and testing data
-amz_aug_train_data = pd.read_csv('../Amazon product reviews dataset/Synonym_augmented_data/amazon_syn_aug_train_processed.csv')
-amz_train_data = pd.read_csv('../Amazon product reviews dataset/amazon_train_processed.csv')
-amz_test_data = pd.read_csv('../Amazon product reviews dataset/amazon_test_processed.csv')
+amz_aug_train_data = pd.read_csv('./Amazon product reviews dataset/Synonym_augmented_data/amazon_syn_aug_train_processed.csv')
+amz_train_data = pd.read_csv('./Amazon product reviews dataset/amazon_train_processed.csv')
+amz_test_data = pd.read_csv('./Amazon product reviews dataset/amazon_test_processed.csv')
 
 # Text Preprocessing
 # A. TF-IDF
@@ -30,7 +30,7 @@ amz_test_data_tfidf = tfidf.fit_transform(amz_test_data.text_processed)
 ################ TBD ###################
 # B. Word2Vec (Try training on our existing corpus)
 # Load Google's pre-trained word2vec model
-model = gensim.models.KeyedVectors.load_word2vec_format('../Text Preprocessing & Augmentation/nlpaug_model_dir/GoogleNews-vectors-negative300.bin', binary=True)
+model = gensim.models.KeyedVectors.load_word2vec_format('../Text_Preprocessing/nlpaug_model_dir/GoogleNews-vectors-negative300.bin', binary=True)
 ########################################
 
 # Auxiliary Function for Results
@@ -44,12 +44,13 @@ def get_clf_results(y_true, y_pred):
 
 ## 1. Multinomial Naive Bayes classifier 
 # Augmented Data
-gnb_clf = MultinomialNB()
-gnb_clf.fit(amz_aug_train_data_tfidf.toarray(), amz_aug_train_data.sentiment)
-amz_aug_pred_nb = gnb_clf.predict(amz_test_data_tfidf.toarray())
+gnb_clf_aug = MultinomialNB()
+gnb_clf_aug.fit(amz_aug_train_data_tfidf.toarray(),amz_aug_train_data.sentiment)
+amz_aug_pred_nb = gnb_clf_aug.predict(amz_test_data_tfidf.toarray())
 get_clf_results(amz_test_data.sentiment.to_numpy(), amz_aug_pred_nb)
 
 # Unaugmented Data
+gnb_clf = MultinomialNB()
 gnb_clf.fit(amz_train_data_tfidf.toarray(), amz_train_data.sentiment)
 amz_pred_nb = gnb_clf.predict(amz_test_data_tfidf.toarray())
 get_clf_results(amz_test_data.sentiment.to_numpy(), amz_pred_nb)

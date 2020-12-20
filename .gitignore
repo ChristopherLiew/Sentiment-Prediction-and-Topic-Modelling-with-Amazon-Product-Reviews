@@ -1,11 +1,32 @@
 
-Text Preprocessing & Augmentation/nlpaug_model_dir/.DS_Store
-Text Preprocessing & Augmentation/.DS_Store
-Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.100d.txt
-Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.200d.txt
-Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.300d.txt
-Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.50d.txt
-Text Preprocessing & Augmentation/nlpaug_model_dir/glove.6B.zip
-Text Preprocessing & Augmentation/nlpaug_model_dir/GoogleNews-vectors-negative300.bin
+Text_Preprocessing/nlpaug_model_dir/.DS_Store
+Text_Preprocessing/.DS_Store
+Text_Preprocessing/nlpaug_model_dir/glove.6B.100d.txt
+Text_Preprocessing/nlpaug_model_dir/glove.6B.200d.txt
+Text_Preprocessing/nlpaug_model_dir/glove.6B.300d.txt
+Text_Preprocessing/nlpaug_model_dir/glove.6B.50d.txt
+Text_Preprocessing/nlpaug_model_dir/glove.6B.zip
+Text_Preprocessing/nlpaug_model_dir/GoogleNews-vectors-negative300.bin
 *.csv
 nlpaug_model_dir/.DS_Store
+Saved Models/Topic Models/lda_pos.model.state
+Saved Models/Topic Models/lda_pos.model.id2word
+Saved Models/Topic Models/lda_pos.model.expElogbeta.npy
+Saved Models/Topic Models/lda_pos.model
+Saved Models/Topic Models/lda_neu.model.state
+Saved Models/Topic Models/lda_neu.model.id2word
+Saved Models/Topic Models/lda_neu.model.expElogbeta.npy
+Saved Models/Topic Models/lda_neu.model
+Saved Models/Topic Models/lda_neg.model.state
+Saved Models/Topic Models/lda_neg.model.id2word
+Saved Models/Topic Models/lda_neg.model.expElogbeta.npy
+Saved Models/Topic Models/lda_neg.model
+Saved Models/Topic Models/.DS_Store
+Saved Models/.DS_Store
+.idea/vcs.xml
+.idea/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews.iml
+.idea/other.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/inspectionProfiles/profiles_settings.xml

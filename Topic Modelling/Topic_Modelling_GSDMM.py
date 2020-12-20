@@ -1,11 +1,14 @@
 import pandas as pd
 import pprint
+import pickle
+import tqdm
 from nltk import ngrams
 import spacy
 from gensim import corpora, models
 import pyLDAvis
 import pyLDAvis.gensim
 from Text_Preprocessing import preprocess_text, custom_tokenizer
+from gsdmm import MovieGroupProcess
 
 # Load amazon data with sentiments
 amz = pd.read_csv('./Amazon product reviews dataset/Amazon_product_review_with_sent.csv')
@@ -66,6 +69,10 @@ corpus_pos = [id2wordPos.doc2bow(text) for text in texts_pos]
 corpus_neu = [id2wordNeu.doc2bow(text) for text in texts_neu]
 corpus_neg = [id2wordNeg.doc2bow(text) for text in texts_neg]
 
+# TF-IDF
+
+# Neural Word Embeddings (TBD)
+
 # For readability
 # [[(id2word[id], freq) for id, freq in cp] for cp in corpus[:7]]
 
@@ -73,17 +80,17 @@ corpus_neg = [id2wordNeg.doc2bow(text) for text in texts_neg]
 # POS LDA
 lda_model_pos = models.ldamodel.LdaModel(corpus=corpus_pos,
                                          id2word=id2wordPos,
-                                    num_topics=20,
-                                    random_state=42,
-                                    update_every=1,
-                                    chunksize=100,
-                                    passes=10,
-                                    alpha='auto',
-                                    eta='auto',
-                                    per_word_topics=True)
+                                         num_topics=20,
+                                         random_state=42,
+                                         update_every=1,
+                                         chunksize=100,
+                                         passes=10,
+                                         alpha='auto',
+                                         eta='auto',
+                                         per_word_topics=True)
 
 # Get Positive Review Topics
-pprint.pprint(lda_model_pos.print_topics())
+pprint.pprint(lda_model_pos.print_topicarpams())
 
 # Visualize the topics related to Positive Reviews
 pyLDAvis.enable_notebook()
@@ -108,7 +115,7 @@ lda_model_neu = models.ldamodel.LdaModel(corpus=corpus_neu,
                                          per_word_topics=True)
 
 # Get topics
-pprint.pprint(lda_model_neu.print_topics())
+pprint.pprint(lgda_model_neu.print_topics())
 # Visualize the topics related to Neutral Reviews
 pyLDAvis.enable_notebook()
 vis_neu = pyLDAvis.gensim.prepare(lda_model_neu, corpus_neu, id2wordNeu)
