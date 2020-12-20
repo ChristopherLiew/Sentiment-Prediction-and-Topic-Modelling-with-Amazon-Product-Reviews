@@ -104,10 +104,7 @@ def build_lsi_model(corpus, dictionary, num_topics, compute_coherence=True, cohe
         return lsi_model
 
 
-## Hyper-parameter Tuning (Super slow O^N**3)
-# See: https://datascience.stackexchange.com/questions/199/what-does-the-alpha-and-beta-hyperparameters-contribute-to-in-latent-dirichlet-a
-# and: https://www.thoughtvector.io/blog/lda-alpha-and-beta-parameters-the-intuition/#:~:text=Here%2C%20alpha%20represents%20document%2Dtopic,they%20consist%20of%20few%20words.
-# and: https://stackoverflow.com/questions/50607378/negative-values-evaluate-gensim-lda-with-topic-coherence
+## Hyper-parameter Tuning
 
 def tune_lsi_model(corpus, dictionary, hyperparameters, val_set_size=0.75, coherence_metric='u_mass'):
     # Try randomised search
