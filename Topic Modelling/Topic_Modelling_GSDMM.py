@@ -1,141 +1,75 @@
 import pandas as pd
-import pprint
-import pickle
-import tqdm
-from nltk import ngrams
-import spacy
-from gensim import corpora, models
-import pyLDAvis
-import pyLDAvis.gensim
-from Text_Preprocessing import preprocess_text, custom_tokenizer
+import numpy as np
+from ast import literal_eval
 from gsdmm import MovieGroupProcess
-
-# Load amazon data with sentiments
-amz = pd.read_csv('./Amazon product reviews dataset/Amazon_product_review_with_sent.csv')
-
-### Clean text ###
-nlp = spacy.load('en_core_web_sm', parse=True, tag=True, entity=True)
-tokenizer = custom_tokenizer(nlp)
-nlp.tokenizer = tokenizer
-clean_amz = preprocess_text(amz, nlp)
-
-### POS tag our reviews ###
-def get_topic_pos(text, pos_list=['PROPN', 'NOUN', 'VERB']): # Consider ADJ & ADVERBS
-    refined_reviews = []
-    for review in text:
-        review_combined = ' '.join(review)
-        rev_nlp = nlp(review_combined)
-        rev = [word.text for word in rev_nlp if word.pos_ in pos_list]
-        refined_reviews.append(rev)
-    return refined_reviews
-
-clean_amz_ref = get_topic_pos(clean_amz)
-
-### N grams ### 
-# Get bigrams & trigrams (NLTK)
-def construct_ngrams(text, ngram=2):
-    ngram_reviews = []
-    for review in text:
-        ngram_reviews.append([i for i in ngrams(review, ngram)])
-    return ngram_reviews
-
-# Bigram model (Gensim)
-def create_bigrams(text): 
-    bigram = models.Phrases(text)  # Higher min_words and threshold-> Harder to form bigrams
-    bigram_mod = models.phrases.Phraser(bigram)
-    return [bigram_mod[doc] for doc in text]
-
-amz_bigram = create_bigrams(clean_amz_ref)
+from gensim import corpora, models
 
 ### Split dataset into POS, NEG, NEU ###
-amz_bigram_with_sent = pd.concat([pd.DataFrame({'reviews.bigrams': amz_bigram}), amz.sentiment], axis=1)
-amz_bigram_pos = list(amz_bigram_with_sent[amz_bigram_with_sent['sentiment'] == 'Positive']['reviews.bigrams'])
-amz_bigram_neu = list(amz_bigram_with_sent[amz_bigram_with_sent['sentiment'] == 'Neutral']['reviews.bigrams'])
-amz_bigram_neg = list(amz_bigram_with_sent[amz_bigram_with_sent['sentiment'] == 'Negative']['reviews.bigrams'])
+# Load existing ngram data from Topic_Modelling_LDA.py file:
 
-### LDA model ###
-# Create Dictionary 
-id2wordPos = corpora.Dictionary(amz_bigram_pos)
-id2wordNeu = corpora.Dictionary(amz_bigram_neu)
-id2wordNeg = corpora.Dictionary(amz_bigram_neg)
+amz_ngrams = pd.read_csv(
+    '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Amazon product reviews dataset/Processed_Review_Data/amazon_full_ngrams.csv',
+    index_col=False)
 
-# Create Corpus
-texts_pos = amz_bigram_pos
-texts_neu = amz_bigram_neu
-texts_neg = amz_bigram_neg
+amz_ngrams_pos = list(amz_ngrams[amz_ngrams['sentiment'] == 'Positive']['reviews_trigrams'])
+amz_ngrams_neu = list(amz_ngrams[amz_ngrams['sentiment'] == 'Neutral']['reviews_trigrams'])
+amz_ngrams_neg = list(amz_ngrams[amz_ngrams['sentiment'] == 'Negative']['reviews_trigrams'])
 
-# Term Document Frequency (For each doc we have word_id: no. of times it occurs within that document)
-corpus_pos = [id2wordPos.doc2bow(text) for text in texts_pos]
-corpus_neu = [id2wordNeu.doc2bow(text) for text in texts_neu]
-corpus_neg = [id2wordNeg.doc2bow(text) for text in texts_neg]
+
+def convert_to_lists(string_data):
+    '''
+    Use when converting back from csv data.
+    '''
+    return [literal_eval(i) for i in string_data]
+
+
+amz_ngrams_pos = convert_to_lists(amz_ngrams_pos)
+amz_ngrams_neu = convert_to_lists(amz_ngrams_neu)
+amz_ngrams_neg = convert_to_lists(amz_ngrams_neg)
+
+### Construct TF-IDF corpus ###
+# Create Dictionary & Filter very rare words
+id2wordPos = corpora.Dictionary(amz_ngrams_pos)
+id2wordPos.filter_extremes(no_below=20, no_above=0.5)  # Extra layer of filtering on top of stop words etc
+
+id2wordNeu = corpora.Dictionary(amz_ngrams_neu)
+id2wordNeu.filter_extremes(no_below=20, no_above=0.5)
+
+id2wordNeg = corpora.Dictionary(amz_ngrams_neg)
+id2wordNeg.filter_extremes(no_below=20, no_above=0.5)
 
 # TF-IDF
+# Convert to Bag of Words using Dictionary
+corpus_pos = [id2wordPos.doc2bow(text) for text in amz_ngrams_pos]
+corpus_neu = [id2wordNeu.doc2bow(text) for text in amz_ngrams_neu]
+corpus_neg = [id2wordNeg.doc2bow(text) for text in amz_ngrams_neg]
 
-# Neural Word Embeddings (TBD)
+# Convert to TF-IDF from BOW
+tfidf_pos = models.TfidfModel(corpus_pos)  # construct TF-IDF model to convert any BOW rep to TF-IDF rep
+corpus_tfidf_pos = tfidf_pos[corpus_pos]  # Convert corpus to TF-IDF rep
 
-# For readability
-# [[(id2word[id], freq) for id, freq in cp] for cp in corpus[:7]]
+tfidf_neu = models.TfidfModel(corpus_neu)
+corpus_tfidf_neu = tfidf_pos[corpus_neu]
 
-# Build LDA model
-# POS LDA
-lda_model_pos = models.ldamodel.LdaModel(corpus=corpus_pos,
-                                         id2word=id2wordPos,
-                                         num_topics=20,
-                                         random_state=42,
-                                         update_every=1,
-                                         chunksize=100,
-                                         passes=10,
-                                         alpha='auto',
-                                         eta='auto',
-                                         per_word_topics=True)
+tfidf_neg = models.TfidfModel(corpus_neg)
+corpus_tfidf_neg = tfidf_pos[corpus_neg]
 
-# Get Positive Review Topics
-pprint.pprint(lda_model_pos.print_topicarpams())
+### Build GSDMM model aka Movie Group Process ###
+## Positive Corpus
+mgp = MovieGroupProcess(K=10, alpha=0.1, beta=0.1, n_iters=30)
+topics = mgp.fit(corpus_tfidf_pos, len(id2wordPos))
 
-# Visualize the topics related to Positive Reviews
-pyLDAvis.enable_notebook()
-vis = pyLDAvis.gensim.prepare(lda_model_pos, corpus_pos, id2wordPos)
-vis
+def top_words(cluster_word_distribution, top_cluster, values):
+    for cluster in top_cluster:
+        sorted_dicts = sorted(mgp.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
+        print('Cluster %s : %s' % (cluster, sorted_dicts))
 
-# Get coherence score
-coherence_model_lda_pos = models.CoherenceModel(model=lda_model_pos, texts=texts_pos, dictionary=id2wordPos, coherence='c_v')
-coherence_lda_pos = coherence_model_lda_pos.get_coherence()
-print('Coherence Score: ', coherence_lda_pos)
+doc_count = np.array(mgp.cluster_doc_count)
+print('Number of documents per topic :', doc_count)
 
-# NEU LDA
-lda_model_neu = models.ldamodel.LdaModel(corpus=corpus_neu,
-                                         id2word=id2wordNeu,
-                                         num_topics=20,
-                                         random_state=42,
-                                         update_every=1,
-                                         chunksize=100,
-                                         passes=10,
-                                         alpha='auto',
-                                         eta='auto',
-                                         per_word_topics=True)
+# Topics sorted by the number of document they are allocated to
+top_index = doc_count.argsort()[-10:][::-1]
+print('Most important clusters (by number of docs inside):', top_index)
 
-# Get topics
-pprint.pprint(lgda_model_neu.print_topics())
-# Visualize the topics related to Neutral Reviews
-pyLDAvis.enable_notebook()
-vis_neu = pyLDAvis.gensim.prepare(lda_model_neu, corpus_neu, id2wordNeu)
-vis_neu
-
-# NEG LDA
-lda_model_neg = models.ldamodel.LdaModel(corpus=corpus_neg,
-                                         id2word=id2wordNeg,
-                                         num_topics=20,
-                                         random_state=42,
-                                         update_every=1,
-                                         chunksize=100,
-                                         passes=10,
-                                         alpha='auto',
-                                         eta='auto',
-                                         per_word_topics=True)
-
-# Get topics
-pprint.pprint(lda_model_neg.print_topics())
-# Visualize the topics related to Neutral Reviews
-pyLDAvis.enable_notebook()
-vis_neg = pyLDAvis.gensim.prepare(lda_model_neg, corpus_neg, id2wordNeg)
-vis_neg
+# Show the top 10 words in term frequency for each cluster
+top_words(mgp.cluster_word_distribution, top_index, 10)

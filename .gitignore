@@ -32,7 +32,7 @@ Saved Models/.DS_Store
 .idea/inspectionProfiles/profiles_settings.xml
 Amazon product reviews dataset/.DS_Store
 .DS_Store
-gsdmm/
+_/
 Saved Models/Topic Models/LSI_models/lsi_pos.model.projection
 Saved Models/Topic Models/LSI_models/lsi_pos.model
 Saved Models/Topic Models/LSI_models/lsi_neu.model.projection
