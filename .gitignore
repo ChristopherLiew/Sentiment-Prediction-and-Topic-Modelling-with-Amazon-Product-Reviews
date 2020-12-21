@@ -59,3 +59,6 @@ nlpaug_model_dir/glove.6B.200d.txt
 nlpaug_model_dir/glove.6B.300d.txt
 nlpaug_model_dir/glove.6B.50d.txt
 nlpaug_model_dir/GoogleNews-vectors-negative300.bin
+*.model
+.DS_Store
+Amazon product reviews dataset/.DS_Store

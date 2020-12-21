@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle
 from ast import literal_eval
 from gsdmm import MovieGroupProcess
 from gensim import corpora, models
@@ -38,38 +39,71 @@ id2wordNeu.filter_extremes(no_below=20, no_above=0.5)
 id2wordNeg = corpora.Dictionary(amz_ngrams_neg)
 id2wordNeg.filter_extremes(no_below=20, no_above=0.5)
 
-# TF-IDF
 # Convert to Bag of Words using Dictionary
 corpus_pos = [id2wordPos.doc2bow(text) for text in amz_ngrams_pos]
 corpus_neu = [id2wordNeu.doc2bow(text) for text in amz_ngrams_neu]
 corpus_neg = [id2wordNeg.doc2bow(text) for text in amz_ngrams_neg]
 
-# Convert to TF-IDF from BOW
-tfidf_pos = models.TfidfModel(corpus_pos)  # construct TF-IDF model to convert any BOW rep to TF-IDF rep
-corpus_tfidf_pos = tfidf_pos[corpus_pos]  # Convert corpus to TF-IDF rep
-
-tfidf_neu = models.TfidfModel(corpus_neu)
-corpus_tfidf_neu = tfidf_pos[corpus_neu]
-
-tfidf_neg = models.TfidfModel(corpus_neg)
-corpus_tfidf_neg = tfidf_pos[corpus_neg]
-
 ### Build GSDMM model aka Movie Group Process ###
 ## Positive Corpus
 mgp = MovieGroupProcess(K=10, alpha=0.1, beta=0.1, n_iters=30)
-topics = mgp.fit(corpus_tfidf_pos, len(id2wordPos))
+topics = mgp.fit(corpus_pos, len(id2wordPos))
 
-def top_words(cluster_word_distribution, top_cluster, values):
+def top_words(model, dictionary, top_cluster, values):
     for cluster in top_cluster:
-        sorted_dicts = sorted(mgp.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
-        print('Cluster %s : %s' % (cluster, sorted_dicts))
+        sorted_dicts = sorted(model.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
+        decoded_dicts = [dictionary[i[0][0]] for i in sorted_dicts]
+        print('Cluster %s : %s' % (cluster, decoded_dicts))
 
 doc_count = np.array(mgp.cluster_doc_count)
 print('Number of documents per topic :', doc_count)
 
 # Topics sorted by the number of document they are allocated to
-top_index = doc_count.argsort()[-10:][::-1]
+top_index = doc_count.argsort()[::-1]
 print('Most important clusters (by number of docs inside):', top_index)
 
-# Show the top 10 words in term frequency for each cluster
-top_words(mgp.cluster_word_distribution, top_index, 10)
+# Show the top 10 words in terms of frequency for each cluster
+top_words(mgp, id2wordPos, top_index, 10)
+
+# Save Positive Model
+with open('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Topic Models/GSDMM_models/gsdmm_pos.model', 'wb') as f:
+    pickle.dump(mgp, f)
+    f.close()
+
+## Neutral Corpus
+mgp_neu = MovieGroupProcess(K=10, alpha=0.1, beta=0.1, n_iters=30)
+topics_neu = mgp_neu.fit(corpus_neu, len(id2wordNeu))
+
+doc_count = np.array(mgp_neu.cluster_doc_count)
+print('Number of documents per topic :', doc_count)
+
+# Topics sorted by the number of document they are allocated to
+top_index = doc_count.argsort()[::-1]
+print('Most important clusters (by number of docs inside):', top_index)
+
+# Show the top 10 words in terms of frequency for each cluster
+top_words(mgp_neu, id2wordNeu, top_index, 20)
+
+# Save Neutral Model
+with open('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Topic Models/GSDMM_models/gsdmm_neu.model', 'wb') as f:
+    pickle.dump(mgp_neu, f)
+    f.close()
+
+## Negative Corpus
+mgp_neg = MovieGroupProcess(K=2, alpha=0.1, beta=0.1, n_iters=30)
+topics_neg = mgp_neg.fit(corpus_neg, len(id2wordNeg))
+
+doc_count = np.array(mgp_neg.cluster_doc_count)
+print('Number of documents per topic :', doc_count)
+
+# Topics sorted by the number of document they are allocated to
+top_index = doc_count.argsort()[::-1]
+print('Most important clusters (by number of docs inside):', top_index)
+
+# Show the top 10 words in terms of frequency for each cluster
+top_words(mgp_neg, id2wordNeg, top_index, 20)
+
+# Save Negative Model
+with open('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Topic Models/GSDMM_models/gsdmm_neg.model', 'wb') as f:
+    pickle.dump(mgp_neg, f)
+    f.close()
