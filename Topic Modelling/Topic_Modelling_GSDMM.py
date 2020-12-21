@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 from ast import literal_eval
 from gsdmm import MovieGroupProcess
-from gensim import corpora, models
+from gensim import corpora
 
 ### Split dataset into POS, NEG, NEU ###
 # Load existing ngram data from Topic_Modelling_LDA.py file:
@@ -45,15 +45,15 @@ corpus_neu = [id2wordNeu.doc2bow(text) for text in amz_ngrams_neu]
 corpus_neg = [id2wordNeg.doc2bow(text) for text in amz_ngrams_neg]
 
 ### Build GSDMM model aka Movie Group Process ###
-## Positive Corpus
-mgp = MovieGroupProcess(K=10, alpha=0.1, beta=0.1, n_iters=30)
-topics = mgp.fit(corpus_pos, len(id2wordPos))
-
-def top_words(model, dictionary, top_cluster, values):
+def top_words(model, dictionary, top_cluster, top_n_words):
     for cluster in top_cluster:
-        sorted_dicts = sorted(model.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
+        sorted_dicts = sorted(model.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:top_n_words]
         decoded_dicts = [dictionary[i[0][0]] for i in sorted_dicts]
         print('Cluster %s : %s' % (cluster, decoded_dicts))
+
+## Positive Corpus
+mgp = MovieGroupProcess(K=8, alpha=0.1, beta=0.1, n_iters=100)
+topics = mgp.fit(corpus_pos, len(id2wordPos))
 
 doc_count = np.array(mgp.cluster_doc_count)
 print('Number of documents per topic :', doc_count)
@@ -63,7 +63,7 @@ top_index = doc_count.argsort()[::-1]
 print('Most important clusters (by number of docs inside):', top_index)
 
 # Show the top 10 words in terms of frequency for each cluster
-top_words(mgp, id2wordPos, top_index, 10)
+top_words(mgp, id2wordPos, top_index, 20)
 
 # Save Positive Model
 with open('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Topic Models/GSDMM_models/gsdmm_pos.model', 'wb') as f:
@@ -71,7 +71,7 @@ with open('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Mod
     f.close()
 
 ## Neutral Corpus
-mgp_neu = MovieGroupProcess(K=10, alpha=0.1, beta=0.1, n_iters=30)
+mgp_neu = MovieGroupProcess(K=8, alpha=0.1, beta=0.1, n_iters=100)
 topics_neu = mgp_neu.fit(corpus_neu, len(id2wordNeu))
 
 doc_count = np.array(mgp_neu.cluster_doc_count)
@@ -90,7 +90,7 @@ with open('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Mod
     f.close()
 
 ## Negative Corpus
-mgp_neg = MovieGroupProcess(K=2, alpha=0.1, beta=0.1, n_iters=30)
+mgp_neg = MovieGroupProcess(K=2, alpha=0.1, beta=0.1, n_iters=100)
 topics_neg = mgp_neg.fit(corpus_neg, len(id2wordNeg))
 
 doc_count = np.array(mgp_neg.cluster_doc_count)

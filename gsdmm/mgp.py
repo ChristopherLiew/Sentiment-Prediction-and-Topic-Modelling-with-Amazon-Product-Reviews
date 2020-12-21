@@ -3,7 +3,7 @@ from numpy import log, exp
 from numpy import argmax
 import json
 from time import sleep
-from tqdm import trange
+from tqdm import tqdm
 
 class MovieGroupProcess:
     def __init__(self, K=8, alpha=0.1, beta=0.1, n_iters=30):
@@ -111,7 +111,7 @@ class MovieGroupProcess:
                     n_z_w[z][word] = 0
                 n_z_w[z][word] += 1
 
-        for _iter in trange(n_iters):
+        for _iter in tqdm(n_iters):
             sleep(0.01)
             total_transfers = 0
 
