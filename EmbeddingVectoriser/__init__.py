@@ -1,0 +1,2 @@
+from EmbeddingVectoriser import MeanEmbeddingVectorizer
+from EmbeddingVectoriser import TfidfEmbeddingVectorizer

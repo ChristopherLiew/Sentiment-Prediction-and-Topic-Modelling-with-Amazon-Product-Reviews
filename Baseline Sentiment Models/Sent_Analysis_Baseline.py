@@ -34,6 +34,7 @@ def identity_tokenizer(text):
 tfidf = TfidfVectorizer(tokenizer=identity_tokenizer, stop_words='english', lowercase=False)
 amz_aug_train_data_tfidf = tfidf.fit_transform(amz_aug_train_data.text_processed)
 amz_train_data_tfidf = tfidf.fit_transform(amz_train_data.text_processed)
+amz_test_data_tfidf = tfidf.fit_transform(amz_test_data.text_processed)
 
 ####################################################
 #  Word Embeddings: Word 2 Vec & Fast Text         #
@@ -98,6 +99,12 @@ fast_text_model.save('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-an
 fast_text_corpus = convert_to_w2v(amz_train_data, fast_text_model, convert_to_string=True, is_w2v=False)
 fast_text_corpus = pd.concat([pd.DataFrame(fast_text_corpus, columns=['reviews']), amz_train_data.sentiment], axis=1)
 fast_text_corpus.to_csv('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Amazon product reviews dataset/Processed_Review_Data/fast_text_amz_data.csv', index=False)
+
+##########################################
+#       Building Features from Text      #
+##########################################
+# Mean Embedding Vectoriser
+# TF-IDF Embedding Vectoriser
 
 ##########################################
 #        Model Development & Eval        #
