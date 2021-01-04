@@ -66,3 +66,4 @@ Word Embedding Models/Word2Vec_Amazon.py
 Saved Models/Word Embedding Models/fast_text.model.wv.vectors_ngrams.npy
 Saved Models/Word Embedding Models/fast_text.model.trainables.vectors_ngrams_lockf.npy
 .DS_Store
+.idea/workspace.xml
