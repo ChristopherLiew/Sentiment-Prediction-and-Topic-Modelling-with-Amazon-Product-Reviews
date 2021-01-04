@@ -1,34 +1,32 @@
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from collections import defaultdict
+from tqdm import tqdm
+from time import sleep
+from ast import literal_eval
+from sklearn.base import TransformerMixin
 
-class MeanEmbeddingVectorizer(object):
-    def __init__(self, word2vec):
-        """
-        Parameters
-        ----------
-        word2vec: Mapping of word to embedding vector.
-        """
-        self.word2vec = word2vec
-        # if a text is empty we should return a vector of zeros
-        # with the same dimensionality as all the other vectors
-        self.dim = len(word2vec.itervalues().next())
+class MeanEmbeddingVectorizer(TransformerMixin):
+    def __init__(self, model, model_type=None, string_input=True):
+        self.model = model
+        self.vector_dims = model.vector_size
+        self.model_type = model_type
+        self.string_input = string_input
 
-    def fit(self, X, y):
+    def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        """
-        Parameters
-        ----------
-        X: Documents with tokenised text.
-
-        Returns: Documents with mean weighted word embeddings.
-        -------
-
-        """
-        return np.array([
-            np.mean([self.word2vec[w] for w in words if w in self.word2vec]
-                    or [np.zeros(self.dim)], axis=0)
-            for words in X
-        ])
+        new_corpus = []
+        progress_bar = tqdm(total=len(X))
+        for row in X.itertuples():
+            sleep(0.01)
+            orig_doc = literal_eval(row[1]) if self.string_input else row[1]
+            # filter out unseen words for w2v model
+            if self.model_type == 'w2v':
+                # Numpy zeros if None/ NaN reviews
+                doc = np.mean([self.model[word] for word in orig_doc if word in self.model.vocab] or [np.zeros(self.vector_dims)], axis=0)
+            else:
+                doc = np.mean([self.model[word] for word in orig_doc] or [np.zeros(self.vector_dims)], axis=0)
+            new_corpus.append(doc)
+            progress_bar.update(1)
+        progress_bar.close()
+        return np.vstack(new_corpus)

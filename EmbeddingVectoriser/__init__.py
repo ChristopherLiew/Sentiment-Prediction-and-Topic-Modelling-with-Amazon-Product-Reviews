@@ -1,2 +1,2 @@
-from EmbeddingVectoriser import MeanEmbeddingVectorizer
-from EmbeddingVectoriser import TfidfEmbeddingVectorizer
+from .MeanEmbeddingVectorizer import MeanEmbeddingVectorizer
+from .TfidfEmbeddingVectorizer import TfidfEmbeddingVectorizer

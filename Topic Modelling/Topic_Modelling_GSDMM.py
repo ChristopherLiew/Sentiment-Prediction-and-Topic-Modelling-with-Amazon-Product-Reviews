@@ -28,7 +28,7 @@ amz_ngrams_pos = convert_to_lists(amz_ngrams_pos)
 amz_ngrams_neu = convert_to_lists(amz_ngrams_neu)
 amz_ngrams_neg = convert_to_lists(amz_ngrams_neg)
 
-### Construct TF-IDF corpus ###
+### Construct BoW corpus ###
 # Create Dictionary & Filter very rare words
 id2wordPos = corpora.Dictionary(amz_ngrams_pos)
 id2wordPos.filter_extremes(no_below=20, no_above=0.5)  # Extra layer of filtering on top of stop words etc
