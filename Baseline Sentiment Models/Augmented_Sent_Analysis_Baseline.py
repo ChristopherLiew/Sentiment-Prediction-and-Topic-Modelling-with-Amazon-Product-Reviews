@@ -219,49 +219,53 @@ rf_w2v_optimal, rf_w2v_score, rf_w2v_params = tune_model(RandomForestClassifier(
                                                          search_params=params_dict_rf)
 
 rf_w2v_pred = rf_w2v_optimal.predict(w2v_test_data)
-get_clf_results(amz_test_data.sentiment.to_numpy(), svc_w2v_pred)
+get_clf_results(amz_test_data.sentiment.to_numpy(), rf_w2v_pred)
 
 # Results:
-# -Accuracy: 0.720881
-# -Weighted F1: 0.786658
-# -Macro F1: 0.491202
-# Improvement across the board in terms accuracy & F1 (weighted & macro) as well as across all sentiment classes
+# -Accuracy: 0.710716
+# -Weighted F1: 0.775801
+# -Macro F1: 0.460367
+# Balanced results, with strong accuracy improvements in negative and neutral sentiment categories
 
 # Save W2V model
-save_model(rf_clf_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/rf_clf_optimal.pkl')
+save_model(rf_w2v_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/rf_w2v_optimal.pkl')
 
 # b. Fast Text Trained
-svc_fast_txt = SVC(kernel='linear', gamma='auto', class_weight='balanced', verbose=1)
-svc_fast_txt.fit(ft_train_data, amz_train_data.sentiment)
-svc_fast_txt_pred = svc_fast_txt.predict(ft_test_data)
-get_clf_results(amz_test_data.sentiment.to_numpy(), svc_fast_txt_pred)
-# Results:
-# -Accuracy: 0.84371
-# -Weighted F1: 0.833509
-# -Macro F1: 0.348814
-# Overall improvement (Esp. for positive) but significant decrease in F1 (Esp. Recall) for negative sentiments
-# Observable tradeoff between majority positive class against other minority classes.
+rf_fasttxt_optimal, rf_fasttxt_score, rf_fasttxt_params = tune_model(RandomForestClassifier(),
+                                                                     (ft_train_data, amz_train_data.sentiment),
+                                                                     search_params=params_dict_rf)
 
-# Save W2V model
-save_model(svc_w2v, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_fasttxt_trained.pkl')
+rf_fasttxt_pred = rf_fasttxt_optimal.predict(ft_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), rf_fasttxt_pred)
+
+# Results:
+# -Accuracy: 0.660737
+# -Weighted F1: 0.735803
+# -Macro F1: 0.393156
+# Overall drop in performance across all sentiment categories and metrics versus word2vec model.
+
+# Save Fast Text Trained model
+save_model(rf_fasttxt_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/rf_fasttxt_trained.pkl')
 
 # c. Fast Text Loaded
-svc_fast_txt_wiki = SVC(kernel='linear', gamma='auto', class_weight='balanced', verbose=1)
-svc_fast_txt_wiki.fit(ft_wiki_train_data, amz_train_data.sentiment)
-svc_fast_txt_loaded_pred = svc_fast_txt_wiki.predict(ft_wiki_test_data)
-get_clf_results(amz_test_data.sentiment.to_numpy(), svc_fast_txt_loaded_pred)
+rf_fasttxt_wiki_optimal, rf_fasttxt_wiki_score, rf_fasttxt_wiki_params = tune_model(RandomForestClassifier(),
+                                                                                    (ft_wiki_train_data, amz_train_data.sentiment),
+                                                                                    search_params=params_dict_rf)
+
+rf_fasttxt_wiki_pred = rf_fasttxt_wiki_optimal.predict(ft_wiki_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), rf_fasttxt_wiki_pred)
+
 # Results:
-# -Accuracy: 0.713116
-# -Weighted F1: 0.781780
-# -Macro F1: 0.487965
-# Similar results to preloaded w2v from GoogleNews vectors. Slightly better negative sentiment accuracy whilst trading off
-# with a slightly poorer positive and neutral class accuracy
+# -Accuracy: 0.740505
+# -Weighted F1: 0.794781
+# -Macro F1: 0.479646
+# Improvements across the board (metrics and sentiment categories). Best results thus far in terms of absolute metric performance tempered by holistic performance
+# across sentiment categories.
 
-# Save W2V model
-save_model(svc_w2v, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_fasttxt_wiki.pkl')
+# Save Fast Text Wiki model
+save_model(rf_fasttxt_wiki_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_fasttxt_wiki.pkl')
 
-### SVC Conclusion ###
-# Generally tradeoff between 3 classes. Word vectors increase accuracy and F1 significantly and w2v seems to be the best
-# compromise in terms of F1-Macro. Limiting factor remains imbalanced data with ~95% being positive sentiment.
-# Trained word embeddings generally over-fit on words and semantics of the majority class = Positive.
-# Test with augmented datasets to see if results improve.
+### RF Conclusion ###
+# Strong results when using fast text wiki data, out performs SVC in terms of Macro F1 but performs more poorly in terms of accuracy vis a vis Fast Text Trained
+# SVC model. This is largely due to SVC overfitting and RF's decision boundary tending towards a more balanced performance. RF thus gives us the best results
+# so far on an severely imbalanced dataset.
