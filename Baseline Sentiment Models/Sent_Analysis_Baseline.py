@@ -18,14 +18,11 @@ pd.set_option('display.width', 10000)
 pd.set_option('display.max_columns', 10000)
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-# TBD:
-# 1) Migrate Augmented Data to separate file
 
 ####################################################
 #  Evaluation metrics: macro-avg F1 + accuracy     #
 ####################################################
 # Load training and testing data
-amz_aug_train_data = pd.read_csv('./Amazon product reviews dataset/Synonym_augmented_data/amazon_syn_aug_train_processed.csv')
 amz_train_data = pd.read_csv('./Amazon product reviews dataset/amazon_train_processed.csv')
 amz_test_data = pd.read_csv('./Amazon product reviews dataset/amazon_test_processed.csv')
 amz_combined_data = pd.concat([amz_train_data, amz_test_data], axis=0)
@@ -36,7 +33,6 @@ def identity_tokenizer(text):
     return text
 
 tfidf = TfidfVectorizer(tokenizer=identity_tokenizer, stop_words='english', lowercase=False)
-amz_aug_train_data_tfidf = tfidf.fit_transform(amz_aug_train_data.text_processed)
 amz_train_data_tfidf = tfidf.fit_transform(amz_train_data.text_processed)
 amz_test_data_tfidf = tfidf.fit_transform(amz_test_data.text_processed)
 
@@ -48,7 +44,6 @@ amz_test_data_tfidf = tfidf.fit_transform(amz_test_data.text_processed)
 w2v = gensim.models.KeyedVectors.load_word2vec_format('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/nlpaug_model_dir/GoogleNews-vectors-negative300.bin', binary=True)
 doc = amz_train_data.iloc[2135].text_processed
 doc_w2v = np.mean([w2v[word] for word in doc if word in w2v.vocab], axis=0)
-w2v.vector_size
 
 # w2v Training & Testing Set
 w2v_mean_vectoriser = MeanEmbeddingVectorizer(w2v, 'w2v')
@@ -86,27 +81,35 @@ import gensim.downloader
 print(list(gensim.downloader.info()['models'].keys()))
 fasttext_vectors = gensim.downloader.load('fasttext-wiki-news-subwords-300')
 
-# fast-text wiki Training & Testing
-ft_wiki_mean_vectoriser = MeanEmbeddingVectorizer(fasttext_vectors)
-ft_wiki_train_data = ft_mean_vectoriser.fit_transform(amz_train_data)
-ft_wiki_test_data = ft_mean_vectoriser.fit_transform(amz_test_data)
+# fast-text Wiki Training & Testing (use 'w2v' mode since vocab is 'fixed' using loaded Wiki vectors)
+ft_wiki_mean_vectoriser = MeanEmbeddingVectorizer(fasttext_vectors, 'w2v')
+ft_wiki_train_data = ft_wiki_mean_vectoriser.fit_transform(amz_train_data)
+ft_wiki_test_data = ft_wiki_mean_vectoriser.fit_transform(amz_test_data)
 
 ##########################################
 #        Model Development & Eval        #
 ##########################################
-# Auxiliary Function for Results
+# Auxiliary Functions
 def get_clf_results(y_true, y_pred):
     print(multilabel_confusion_matrix(y_true, y_pred))
     return pd.DataFrame(classification_report(y_true, y_pred, output_dict=True))
 
-## 1. Multinomial Naive Bayes classifier (No negative values since multinomial distributions)
-# Augmented Data
-gnb_clf_aug = MultinomialNB()
-gnb_clf_aug.fit(amz_aug_train_data_tfidf.toarray(), amz_aug_train_data.sentiment)
-amz_aug_pred_nb = gnb_clf_aug.predict(amz_test_data_tfidf.toarray())
-get_clf_results(amz_test_data.sentiment.to_numpy(), amz_aug_pred_nb)
+def tune_model(model, X, search_params, verbosity=True, n_jobs=-1):
+    tuner = RandomizedSearchCV(model, search_params, verbose=verbosity, n_jobs=n_jobs)
+    train_data, train_labels = X
+    search = tuner.fit(train_data, train_labels)
+    return search.best_estimator_, search.best_score_, search.best_params_
 
-# Unaugmented Data
+def save_model(model, filepath):
+    with open(filepath, 'wb') as file:
+        pickle.dump(model, file)
+        print('Model successfully saved at: ' + filepath)
+
+def load_model(filepath):
+    with open(filepath, 'rb') as file:
+        return pickle.load(file)
+
+## 1. Multinomial Naive Bayes classifier (No negative values since multinomial distributions)
 gnb_clf = MultinomialNB()
 gnb_clf.fit(amz_train_data_tfidf.toarray(), amz_train_data.sentiment)
 amz_pred_nb = gnb_clf.predict(amz_test_data_tfidf.toarray())
@@ -121,36 +124,72 @@ params_dict = {
     'class_weight': ['balanced']
 }
 
-svc_clf_tuned = RandomizedSearchCV(SVC(), params_dict, random_state=42)
+# Optimal SVC model with TFIDF
+svc_clf_optimal, svc_clf_score, svc_clf_params = tune_model(SVC(),
+                                                            (amz_train_data_tfidf.toarray(), amz_train_data.sentiment),
+                                                            search_params=params_dict)
 
-# Augmented
-search_augmented = svc_clf_tuned.fit(amz_aug_train_data_tfidf.toarray(), amz_aug_train_data.sentiment)
-search_augmented.best_score_
-search_augmented.best_params_
-
-# Unaugmented
-search_norm = svc_clf_tuned.fit(amz_train_data_tfidf.toarray(), amz_train_data.sentiment)
-search_norm.best_score_
-search_norm.best_params_
-
-# Augmented Data
-svc_clf = SVC(kernel='linear', gamma='auto', class_weight='balanced')
-
-svc_clf.fit(amz_aug_train_data_tfidf.toarray(), amz_aug_train_data.sentiment)
-amz_aug_pred_svc = svc_clf.predict(amz_test_data_tfidf.toarray())
-get_clf_results(amz_test_data.sentiment.to_numpy(), amz_aug_pred_svc)
-
-# Unaugmented Data
-svc_clf.fit(amz_train_data_tfidf.toarray(), amz_train_data.sentiment)
-amz_pred_svc = svc_clf.predict(amz_test_data_tfidf.toarray())
+amz_pred_svc = svc_clf_optimal.predict(amz_test_data_tfidf.toarray())
 get_clf_results(amz_test_data.sentiment.to_numpy(), amz_pred_svc)
 
-# Unaugmented Data with Embeddings
+# Results:
+# -Accuracy: 0.482423
+# -Weighted F1: 0.591577
+# -Macro F1: 0.317604
+
+# Save model
+save_model(svc_clf_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_tfidf.pkl')
+
+# Optimal SVC models with Word Embeddings
 # a. Word2Vec
-svc_w2v = SVC(kernel='linear', gamma='auto', class_weight='balanced')
+svc_w2v = SVC(kernel='linear', gamma='auto', class_weight='balanced', verbose=1)
 svc_w2v.fit(w2v_train_data, amz_train_data.sentiment)
 svc_w2v_pred = svc_w2v.predict(w2v_test_data)
 get_clf_results(amz_test_data.sentiment.to_numpy(), svc_w2v_pred)
+# Results:
+# -Accuracy: 0.720881
+# -Weighted F1: 0.786658
+# -Macro F1: 0.491202
+# Improvement across the board in terms accuracy & F1 (weighted & macro) as well as across all sentiment classes
+
+# Save W2V model
+save_model(svc_w2v, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_w2v.pkl')
+
+# b. Fast Text Trained
+svc_fast_txt = SVC(kernel='linear', gamma='auto', class_weight='balanced', verbose=1)
+svc_fast_txt.fit(ft_train_data, amz_train_data.sentiment)
+svc_fast_txt_pred = svc_fast_txt.predict(ft_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), svc_fast_txt_pred)
+# Results:
+# -Accuracy: 0.84371
+# -Weighted F1: 0.833509
+# -Macro F1: 0.348814
+# Overall improvement (Esp. for positive) but significant decrease in F1 (Esp. Recall) for negative sentiments
+# Observable tradeoff between majority positive class against other minority classes.
+
+# Save W2V model
+save_model(svc_w2v, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_fasttxt_trained.pkl')
+
+# c. Fast Text Loaded
+svc_fast_txt_wiki = SVC(kernel='linear', gamma='auto', class_weight='balanced', verbose=1)
+svc_fast_txt_wiki.fit(ft_wiki_train_data, amz_train_data.sentiment)
+svc_fast_txt_loaded_pred = svc_fast_txt_wiki.predict(ft_wiki_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), svc_fast_txt_loaded_pred)
+# Results:
+# -Accuracy: 0.713116
+# -Weighted F1: 0.781780
+# -Macro F1: 0.487965
+# Similar results to preloaded w2v from GoogleNews vectors. Slightly better negative sentiment accuracy whilst trading off
+# with a slightly poorer positive and neutral class accuracy
+
+# Save W2V model
+save_model(svc_w2v, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_fasttxt_wiki.pkl')
+
+### SVC Conclusion ###
+# Generally tradeoff between 3 classes. Word vectors increase accuracy and F1 significantly and w2v seems to be the best
+# compromise in terms of F1-Macro. Limiting factor remains imbalanced data with ~95% being positive sentiment.
+# Trained word embeddings generally over-fit on words and semantics of the majority class = Positive.
+# Test with augmented datasets to see if results improve.
 
 ## 3. Random Forest
 params_dict_rf = {
@@ -159,25 +198,74 @@ params_dict_rf = {
     'class_weight': ['balanced']
 }
 
-rf_clf_tuned = RandomizedSearchCV(RandomForestClassifier(), params_dict_rf, random_state=42)
-# Augmented
-search_augmented_rf = rf_clf_tuned.fit(amz_aug_train_data_tfidf.toarray(), amz_aug_train_data.sentiment)
-search_augmented_rf.best_score_
-search_augmented_rf.best_params_
+# Optimal RF model with TFIDF
+rf_clf_optimal, rf_clf_score, rf_clf_params = tune_model(RandomForestClassifier(),
+                                                         (amz_train_data_tfidf.toarray(), amz_train_data.sentiment),
+                                                         search_params=params_dict_rf)
 
-# Unaugmented
-search_norm_rf = rf_clf_tuned.fit(amz_train_data_tfidf.toarray(), amz_train_data.sentiment)
-search_norm_rf.best_score_
-search_norm_rf.best_params_
-
-# Augmented Data (Optimal hyperparams)
-rf_clf_aug = RandomForestClassifier(n_estimators=300, max_depth=4, class_weight='balanced', oob_score=True)
-rf_clf_aug.fit(amz_aug_train_data_tfidf.toarray(),amz_aug_train_data.sentiment)
-amz_aug_pred_rf = rf_clf_aug.predict(amz_test_data_tfidf.toarray())
-get_clf_results(amz_test_data.sentiment.to_numpy(), amz_aug_pred_rf)
-
-# Unaugmented Data 
-rf_clf_unaug = RandomForestClassifier(n_estimators=100, max_depth=4, class_weight='balanced', oob_score=True)
-rf_clf_unaug.fit(amz_train_data_tfidf.toarray(), amz_train_data.sentiment)
-amz_pred_rf = rf_clf_unaug.predict(amz_test_data_tfidf.toarray())
+amz_pred_rf = rf_clf_optimal.predict(amz_test_data_tfidf.toarray())
 get_clf_results(amz_test_data.sentiment.to_numpy(), amz_pred_rf)
+
+# Results:
+# -Accuracy: 0.649584
+# -Weighted F1: 0.725631
+# -Macro F1: 0.360333
+# Strong improvement over SVC, slight dip in negative sentiment predictions.
+
+# Optimal RF models with Word Embeddings
+# a. Word2Vec
+rf_w2v_optimal, rf_w2v_score, rf_w2v_params = tune_model(RandomForestClassifier(),
+                                                         (w2v_train_data, amz_train_data.sentiment),
+                                                         search_params=params_dict_rf)
+
+rf_w2v_pred = rf_w2v_optimal.predict(w2v_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), rf_w2v_pred)
+
+# Results:
+# -Accuracy: 0.710716
+# -Weighted F1: 0.775801
+# -Macro F1: 0.460367
+# Balanced results, with strong accuracy improvements in negative and neutral sentiment categories
+
+# Save W2V model
+save_model(rf_w2v_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/rf_w2v_optimal.pkl')
+
+# b. Fast Text Trained
+rf_fasttxt_optimal, rf_fasttxt_score, rf_fasttxt_params = tune_model(RandomForestClassifier(),
+                                                                     (ft_train_data, amz_train_data.sentiment),
+                                                                     search_params=params_dict_rf)
+
+rf_fasttxt_pred = rf_fasttxt_optimal.predict(ft_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), rf_fasttxt_pred)
+
+# Results:
+# -Accuracy: 0.660737
+# -Weighted F1: 0.735803
+# -Macro F1: 0.393156
+# Overall drop in performance across all sentiment categories and metrics versus word2vec model.
+
+# Save Fast Text Trained model
+save_model(rf_fasttxt_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/rf_fasttxt_trained.pkl')
+
+# c. Fast Text Loaded
+rf_fasttxt_wiki_optimal, rf_fasttxt_wiki_score, rf_fasttxt_wiki_params = tune_model(RandomForestClassifier(),
+                                                                                    (ft_wiki_train_data, amz_train_data.sentiment),
+                                                                                    search_params=params_dict_rf)
+
+rf_fasttxt_wiki_pred = rf_fasttxt_wiki_optimal.predict(ft_wiki_test_data)
+get_clf_results(amz_test_data.sentiment.to_numpy(), rf_fasttxt_wiki_pred)
+
+# Results:
+# -Accuracy: 0.740505
+# -Weighted F1: 0.794781
+# -Macro F1: 0.479646
+# Improvements across the board (metrics and sentiment categories). Best results thus far in terms of absolute metric performance tempered by holistic performance
+# across sentiment categories.
+
+# Save Fast Text Wiki model
+save_model(rf_fasttxt_wiki_optimal, '/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/Saved Models/Sentiment Classification Models/svc_fasttxt_wiki.pkl')
+
+### RF Conclusion ###
+# Strong results when using fast text wiki data, out performs SVC in terms of Macro F1 but performs more poorly in terms of accuracy vis a vis Fast Text Trained
+# SVC model. This is largely due to SVC overfitting and RF's decision boundary tending towards a more balanced performance. RF thus gives us the best results
+# so far on an severely imbalanced dataset.
