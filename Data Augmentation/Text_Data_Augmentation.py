@@ -1,4 +1,5 @@
 import pandas as pd
+from math import floor, ceil
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 import nlpaug.augmenter.word as naw
@@ -40,7 +41,7 @@ amz_train_set.sentiment.value_counts()
 
 # No. of augments to perform per sample
 def num_augments_per_sample(curr, target):
-    return int((target - curr)/ curr)
+    return floor((target - curr)/curr)
 
 num_augments_per_sample(1185, 19161) # Negative: ~15
 num_augments_per_sample(903, 19161)  # Neutral: ~20
