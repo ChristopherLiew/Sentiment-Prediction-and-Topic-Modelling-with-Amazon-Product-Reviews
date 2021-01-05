@@ -1,54 +1,43 @@
 import numpy as np
+from ast import literal_eval
+from tqdm import tqdm
+from time import sleep
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.base import TransformerMixin
 from collections import defaultdict
 
-class TfidfEmbeddingVectorizer(object):
-    def __init__(self, word2vec):
-        """
-        Parameters
-        ----------
-        word2vec: Mapping of word to embedding vector.
-        """
-        self.word2vec = word2vec
+class TfidfEmbeddingVectorizer(TransformerMixin):
+    def __init__(self, model, model_type=None, string_input=True):
+        self.model = model
         self.word2weight = None
-        self.dim = len(word2vec.itervalues().next())
+        self.vector_dims = model.vector_size
+        self.model_type = model_type
+        self.string_input = string_input
 
-    def fit(self, X, y):
-        """
-        Parameters
-        ----------
-        X: Documents with tokenised text.
-        y: Target feature.
-
-        Returns: Fitted TfidfEmbeddingVectoriser object.
-        -------
-
-        """
+    def fit(self, X, y=None):
         tfidf = TfidfVectorizer(analyzer=lambda x: x)
         tfidf.fit(X)
         # if a word was never seen - it must be at least as infrequent
-        # as any of the known words - so the default idf is the max of
-        # known idf's
+        # as any of the known words - so the default idf is the max of known idf's
         max_idf = max(tfidf.idf_)
-        self.word2weight = defaultdict(
-            lambda: max_idf,
-            [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
-
+        self.word2weight = defaultdict(lambda: max_idf, [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
         return self
 
     def transform(self, X):
-        """
-        Parameters
-        ----------
-        X: Documents with tokenised text.
-
-        Returns: Documents with tfidf weighted word embeddings.
-        -------
-
-        """
-        return np.array([
-            np.mean([self.word2vec[w] * self.word2weight[w]
-                     for w in words if w in self.word2vec] or
-                    [np.zeros(self.dim)], axis=0)
-            for words in X
-        ])
+        new_corpus = []
+        progress_bar = tqdm(total=len(X))
+        for row in X.itertuples():
+            sleep(0.01)
+            orig_doc = literal_eval(row[1]) if self.string_input else row[1]
+            # filter out unseen words for w2v model
+            if self.model_type == 'w2v':
+                # Numpy zeros if None/ NaN reviews
+                doc = np.mean(
+                    [self.model[word]*self.word2weight[word] for word in orig_doc if word in self.model.vocab] or [np.zeros(self.vector_dims)],
+                    axis=0)
+            else:
+                doc = np.mean([self.model[word]*self.word2weight[word] for word in orig_doc] or [np.zeros(self.vector_dims)], axis=0)
+            new_corpus.append(doc)
+            progress_bar.update(1)
+        progress_bar.close()
+        return np.vstack(new_corpus)
