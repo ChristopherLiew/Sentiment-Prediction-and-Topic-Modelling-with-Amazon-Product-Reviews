@@ -22,9 +22,8 @@ pd.set_option('display.max_columns', 10000)
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 ### TBD ###
-# 1) Test with TF-IDF weighted vectoriser
-# 2) Plot learning & Prec-Recall curves
-# 3) Autotune maybe
+# 1) Plot learning & Prec-Recall curves
+# 2) Autotune FastText and Evaluate if there are any performance gains
 
 ####################################################
 #  Evaluation metrics: macro-avg F1 + accuracy     #
