@@ -1148,3 +1148,122 @@ Amazon product reviews dataset/amazon_test.csv
 Amazon product reviews dataset/amazon_train.csv
 Amazon product reviews dataset/amazon_train.csv
 Amazon product reviews dataset/amazon_test.csv
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/INSTALLER
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/LICENSE
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/METADATA
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/RECORD
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/REQUESTED
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/top_level.txt
+venv/lib/python3.8/site-packages/tensorflow_text-2.4.3.dist-info/WHEEL
+venv/lib/python3.8/site-packages/tensorflow_text/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/keras/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/keras/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/keras/layers/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/keras/layers/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/keras/layers/__pycache__/todense.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/keras/layers/todense.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/metrics/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/metrics/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/metrics/__pycache__/text_similarity_metric_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/metrics/_text_similarity_metric_ops.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/metrics/text_similarity_metric_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/numpy/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/numpy/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/numpy/__pycache__/viterbi_decode.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/numpy/viterbi_decode.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__init__.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/__init__.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/bert_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/create_feature_bitmask_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/greedy_constrained_sequence_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/hub_module_splitter.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/hub_module_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/item_selector_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/masking_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/mst_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/ngrams_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/normalize_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/pad_along_dimension_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/pad_model_inputs_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/pointer_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/regex_split_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/segment_combiner_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/sentence_breaking_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/sentencepiece_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/sliding_window_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/split_merge_from_logits_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/split_merge_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/splitter.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/state_based_sentence_breaker_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/string_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/tokenization.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/trimmer_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/unicode_char_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/unicode_script_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/viterbi_constrained_sequence_op.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/whitespace_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/wordpiece_tokenizer.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/__pycache__/wordshape_ops.cpython-38.pyc
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_constrained_sequence_op.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_mst_ops.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_normalize_ops.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_regex_split_ops.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_sentence_breaking_ops.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_sentencepiece_tokenizer.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_split_merge_from_logits_tokenizer.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_split_merge_tokenizer.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_state_based_sentence_breaker_op.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_unicode_script_tokenizer.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_whitespace_tokenizer.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/_wordpiece_tokenizer.dylib
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/bert_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/create_feature_bitmask_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/greedy_constrained_sequence_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/hub_module_splitter.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/hub_module_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/item_selector_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/masking_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/mst_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/ngrams_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/normalize_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/pad_along_dimension_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/pad_model_inputs_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/pointer_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/regex_split_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/segment_combiner_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/sentence_breaking_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/sentencepiece_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/sliding_window_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/split_merge_from_logits_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/split_merge_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/splitter.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/state_based_sentence_breaker_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/string_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/tokenization.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/trimmer_ops.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/unicode_char_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/unicode_script_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/viterbi_constrained_sequence_op.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/whitespace_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/wordpiece_tokenizer.py
+venv/lib/python3.8/site-packages/tensorflow_text/python/ops/wordshape_ops.py
+Transformer Models/Saved Models/my_bert_model.h5
+Transformer Models/my_logs/run_2021_01_19-22_00_17/train/events.out.tfevents.1611064895.DLSM-MacBook-Pro.local.profile-empty
+Transformer Models/my_logs/run_2021_01_19-22_00_17/train/events.out.tfevents.1611064817.DLSM-MacBook-Pro.local.13385.110695.v2
+Transformer Models/my_logs/run_2021_01_19-15_18_53/validation/events.out.tfevents.1611048390.DLSM-MacBook-Pro.local.13385.63301.v2
+Transformer Models/my_logs/run_2021_01_19-15_18_53/train/events.out.tfevents.1611040779.DLSM-MacBook-Pro.local.profile-empty
+Transformer Models/my_logs/run_2021_01_19-15_18_53/train/events.out.tfevents.1611040739.DLSM-MacBook-Pro.local.13385.45420.v2
+Transformer Models/my_logs/run_2021_01_13-02_29_39/train/events.out.tfevents.1610476194.DLSM-MacBook-Pro.local.34557.9032.v2
+Transformer Models/my_logs/run_2021_01_19-15_18_53/train/events.out.tfevents.1611040739.DLSM-MacBook-Pro.local.13385.45420.v2
+Transformer Models/my_logs/run_2021_01_19-15_18_53/train/events.out.tfevents.1611040779.DLSM-MacBook-Pro.local.profile-empty
+Transformer Models/my_logs/run_2021_01_19-15_18_53/validation/events.out.tfevents.1611048390.DLSM-MacBook-Pro.local.13385.63301.v2
+Transformer Models/my_logs/run_2021_01_19-22_00_17/train/events.out.tfevents.1611064817.DLSM-MacBook-Pro.local.13385.110695.v2
+Transformer Models/my_logs/run_2021_01_19-22_00_17/train/events.out.tfevents.1611064895.DLSM-MacBook-Pro.local.profile-empty
+Transformer Models/Saved Models/my_bert_model.h5
+*.png
+*.v2
+*.profile-empty
+*.h5
