@@ -3,6 +3,7 @@ import time
 from ast import literal_eval
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
 import tensorflow_hub as hub
@@ -20,7 +21,6 @@ from sklearn.metrics import classification_report
 pd.options.display.max_columns = 20
 tf.get_logger().setLevel('ERROR')
 K = keras.backend
-K.clear_session()
 
 ### Load our preprocessed text data ###
 def process_and_concat_text(X):
@@ -145,8 +145,11 @@ classification_rep = pd.DataFrame(classification_report(y_pred=y_pred, y_true=ra
 ## Plot training and validation learning curves
 # Tensorboard (BASH): tensorboard --logdir=./Transformer\ Models/my_logs --port=6006
 
-# 1) Loss
-# 2) Accuracy
+# Loss & Accuracy vs. Epoch
+plt.plot(pd.DataFrame(history.history))
+plt.grid(True)
+plt.gca().set_ylim(0, 1)
+plt.show()
 
 ## Reset
 K.clear_session()
