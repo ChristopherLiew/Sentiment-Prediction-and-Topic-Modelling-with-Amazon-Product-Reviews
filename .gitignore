@@ -1267,3 +1267,24 @@ Transformer Models/Saved Models/my_bert_model.h5
 *.v2
 *.profile-empty
 *.h5
+*.pkl
+saved_baseline_models/Topic Models/LDA_models/lda_neg.model.expElogbeta.npy
+saved_baseline_models/Topic Models/LDA_models/lda_neg.model.id2word
+saved_baseline_models/Topic Models/LDA_models/lda_neg.model.state
+saved_baseline_models/Topic Models/LDA_models/lda_neu.model.expElogbeta.npy
+saved_baseline_models/Topic Models/LDA_models/lda_neu.model.id2word
+saved_baseline_models/Topic Models/LDA_models/lda_neu.model.state
+saved_baseline_models/Topic Models/LDA_models/lda_pos.model.expElogbeta.npy
+saved_baseline_models/Topic Models/LDA_models/lda_pos.model.id2word
+saved_baseline_models/Topic Models/LDA_models/lda_pos.model.state
+saved_baseline_models/Topic Models/LSI_models/lsi_neg.model.projection
+saved_baseline_models/Topic Models/LSI_models/lsi_neu.model.projection
+saved_baseline_models/Topic Models/LSI_models/lsi_pos.model.projection
+saved_baseline_models/Word Embedding Models/fast_text.model.trainables.vectors_ngrams_lockf.npy
+saved_baseline_models/Word Embedding Models/fast_text.model.wv.vectors_ngrams.npy
+transformers/tf_hub_models/bert_en_uncased_preprocess_3/assets/vocab.txt
+transformers/tf_hub_models/bert_en_uncased_preprocess_3/variables/variables.data-00000-of-00001
+transformers/tf_hub_models/bert_en_uncased_preprocess_3/variables/variables.index
+transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1/assets/vocab.txt
+transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1/variables/variables.data-00000-of-00001
+transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1/variables/variables.index

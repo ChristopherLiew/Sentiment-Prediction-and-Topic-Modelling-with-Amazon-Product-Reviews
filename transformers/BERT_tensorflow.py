@@ -12,15 +12,11 @@ from official.nlp import optimization
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from sklearn.metrics import classification_report
 
-### TBD ###
-# Tidy up code and debug training accuracy = 0 issues
-# Add in text preprocessing
-# Try other transformers
-
 ## Configs ##
 pd.options.display.max_columns = 20
 tf.get_logger().setLevel('ERROR')
 K = keras.backend
+print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
 ### Load our preprocessed text data ###
 def process_and_concat_text(X):
@@ -72,15 +68,15 @@ amz_test_ds = amz_test_ds.padded_batch(BATCH_SIZE, padded_shapes=((), (3, )))
 next(iter(amz_val_ds))
 
 ## Loading BERT model and pre-processing model
-BERT_MODEL = 'https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-8_H-768_A-12/1'
-PREPROCESSING_MODEL = 'https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/2'
+PREPROCESSING_MODEL = "/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/transformers/tf_hub_models/bert_en_uncased_preprocess_3"
+BERT_MODEL = "/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1"
 
 ## Fine Tuned BERT model
 def build_bert_classifier(preprocessing_model, bert_model):
     text_input = keras.layers.Input(shape=(), dtype=tf.string, name='text_input')
-    bert_preprocessing_layer = hub.KerasLayer(preprocessing_model, name='bert_preprocessing')  # Truncate input to 128
+    bert_preprocessing_layer = hub.KerasLayer(preprocessing_model, name='bert_preprocessing') # Truncate input to 128
     encoder_inputs = bert_preprocessing_layer(text_input)
-    bert_encoder = hub.KerasLayer(bert_model, trainable=True, name='BERT_encoder')
+    bert_encoder = hub.KerasLayer(bert_model, trainable=True, name='BERT_encoder') # Fine tune BERT params
     outputs = bert_encoder(encoder_inputs)
     pooled_output = outputs['pooled_output']  # Embedding for the entire review dataset
     net = keras.layers.Dropout(0.2)(pooled_output)
@@ -91,8 +87,10 @@ def build_bert_classifier(preprocessing_model, bert_model):
 classifier_model = build_bert_classifier(PREPROCESSING_MODEL, BERT_MODEL)
 
 ## View model
+IMG_NAME = 'my_bert_model.png'
+SAVE_MODEL_IMG_PATH = os.path.join('/Users/MacBookPro15/Documents/GitHub/Sentiment-Analysis-and-Topic-Modelling-on-Amazon-Product-Reviews/transformers', IMG_NAME)
 keras.utils.plot_model(classifier_model,
-                       'bert_tf_model.png',
+                       SAVE_MODEL_IMG_PATH,
                        show_dtype=True,
                        show_layer_names=True,
                        show_shapes=True)
@@ -100,10 +98,10 @@ keras.utils.plot_model(classifier_model,
 ## Train model
 # Loss function (Cat CrossEntropy since [n_obs, n_class]; Use SparseCategoricalEntropy if it is 1D)
 loss = keras.losses.CategoricalCrossentropy(from_logits=False) # Softmax applied, thus normalised.
-metric = tf.metrics.Accuracy()
+metric = tf.keras.metrics.CategoricalAccuracy()
 
 # Optimizer (Copy BERT pre-training process)
-epochs = 5
+epochs = 1
 steps_per_epoch = tf.data.experimental.cardinality(amz_train_ds).numpy()
 num_train_steps = steps_per_epoch * epochs
 num_warmup_steps = int(0.1 * num_train_steps)  # 10% for warm up
@@ -126,8 +124,10 @@ def get_log_dir():
     return os.path.join(root_log_dir, run_id)
 
 RUN_LOG_DIR = get_log_dir()
+MODEL_NAME = 'my_bert_model_2.h5'
+
 tensorboard_cb = TensorBoard(RUN_LOG_DIR)
-model_checkpoint_cb = ModelCheckpoint('./Transformer Models/Saved Models/my_bert_model.h5', save_best_only=True)
+model_checkpoint_cb = ModelCheckpoint('./Transformer Models/Saved Models/%s' % MODEL_NAME, save_best_only=True)
 early_stopping_cb = EarlyStopping(patience=20)
 
 # Train

@@ -13,8 +13,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import multilabel_confusion_matrix, classification_report
 from sklearn.model_selection import RandomizedSearchCV
-from EmbeddingVectoriser.MeanEmbeddingVectorizer import MeanEmbeddingVectorizer
-from EmbeddingVectoriser.TfidfEmbeddingVectorizer import TfidfEmbeddingVectorizer
+from embedding_vectoriser.MeanEmbeddingVectorizer import MeanEmbeddingVectorizer
+from embedding_vectoriser.TfidfEmbeddingVectorizer import TfidfEmbeddingVectorizer
 
 # Formatting
 pd.set_option('display.width', 10000)
