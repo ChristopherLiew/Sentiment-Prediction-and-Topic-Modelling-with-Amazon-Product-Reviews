@@ -1289,3 +1289,4 @@ transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1/assets/vo
 transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1/variables/variables.data-00000-of-00001
 transformers/tf_hub_models/small_bert_bert_en_uncased_L-8_H-768_A-12_1/variables/variables.index
 *.pkl
+*.pkl
